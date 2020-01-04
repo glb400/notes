@@ -1,0 +1,271 @@
+# Learning-shell.txt
+
+Shell是一种脚本语言，那么，就必须有解释器来执行这些脚本，常见的脚本解释器有：
+
+bash：是Linux标准默认的shell。bash由Brian Fox和Chet Ramey共同完成，是BourneAgain Shell的缩写，内部命令一共有40个。
+sh： 由Steve Bourne开发，是Bourne Shell的缩写，sh 是Unix 标准默认的shell。
+另外还有：ash、 csh、 ksh等。
+
+常见的编程语言分为两类：一个是编译型语言，如：c/c++/java等，它们远行前全部一起要经过编译器的编译。
+另一个解释型语言，执行时，需要使用解释器一行一行地转换为代码，如：awk, perl, python与shell等。Shell经过了POSIX的标准化，所以它是可以在不同的linux系统上进行移植。
+
+关于注释的问题： 在shell中使用#进行注释，注意，sh里面没有多行注释，只能每一行加一个#号；
+
+第一个shell脚本程序：
+#！/bin/bash
+# 上面的#！是一种约定标记，它告诉系统这个脚本需要什么样的解释器来执行
+
+echo "Hello,world!"
+
+变量
+1.定义变量:
+country = "China"
+Number = 100
+ps:1.变量命和等号间不许有空格 2.首个字符必须为字母 3.中间不能有空格/可以使用下划线 4.不能使用标点符号 5.不能使用bash里的关键字
+2.使用变量：
+只需要在一个定义过的变量前面加上$就行，对于变量的{}是可以选择的，它的目的是为了帮助解释器识别变量的边界
+country="China"
+
+echo $country
+echo ${country}
+echo "I love my ${country} abcd"
+3.重定义变量：
+country="China"
+country="JP"
+4.只读变量：
+readonly country="China"
+country="China"
+readonly country
+5.删除变量：
+使用unset可以删除变量，但不可删除只读变量
+unset variable_name
+
+变量类型
+运行shell时，会同时存在三种变量
+1）局部变量：局部变量在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量
+2）环境变量：所有程序，包括shell启动的程序都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。
+3）shell变量：shell变量是由shell程序设置的特殊变量。（shell变量中有一部分环境变量一部分局部变量，这些变量保证了shell的正常运行
+4）**特殊变量：
+$0	当前脚本的文件名
+$n	传递给脚本或函数的参数。n 是一个数字，表示第几个参数。例如，第一个参数是$1，第二个参数是$2。
+$#	传递给脚本或函数的参数个数。
+$*	传递给脚本或函数的所有参数。
+$@	传递给脚本或函数的所有参数。被双引号(" ")包含时，与 $* 稍有不同，下面将会讲到。
+$?	上个命令的退出状态，或函数的返回值。
+$$	当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。
+
+
+shell运算符：
+算数运算符：原生bash不支持简单的数学运算，但可通过其他命令实现，比如awk和expr.
+I.E.
+a=10
+b=20
+expr $a + $b
+expr $a - $b
+expr $a \* $b
+expr $a / $b
+expr $a % $b
+a=$b
+文件测试运算符
+
+字符串：双引号里可以有变量+双引号里可以出现转义字符
+1拼接：country="China" 
+echo "hello, $country"
+或 echo "hello, "$country" "
+2获取字符串长度：string="abcd"
+echo ${#string}
+3提取子字符串：string="alibaba is a great company"
+echo ${string:1:4} 
+4查找子字符串：string="alibaba is a great company"
+echo 'expr index "$string" is'
+5处理路径的字符串：当一个路径为/home/1.txt时如何得到路径和文件名？
+
+bashname /home/1.txt ->1.txt
+# -a 表示处理多个路径
+bashname -a /home/1.txt home/subfolder/2.sh -> 
+1.txt
+2.sh
+# -s 用于去掉指定的文件的后缀名
+basename -s .txt /home/1.txt -> 1
+dirname /usr/bin -> /usr
+dirname dir1/str dir2/str ->
+dir1
+dir2
+dirname stdio.h ->.
+
+shell数组：
+bash支持一维数组，不支持多维数组
+1.定义数组：
+在shell中用括号表示数组，元素用空格分开，如：
+array_name = (value0 value1 value2 value3)
+也可以单独定义各分量：
+array_name[0] = value0
+array_name[1] = value1
+array_name[2] = value2
+2.读取数组：
+读取某个下标元素 ${array_name[index]}
+读取全部元素 ${array_name[*]} 或 ${array_name[@]}
+3.获取数组信息：
+获取元素个数 length=${#array_name[@]}
+获取元素下标 length=${!array_name[@]}
+获取单个元素的长度 lengthn=${#array_name[n]}
+4.printf
+printf "%d %s\n" 1 "abc"
+1 abc
+
+shell中条件语句
+1.if 语句
+if [expression] then 
+	statements 
+elif [expression] then
+	statements
+fi
+I.E.
+a=10
+b=20
+if [ $a == $b ]
+then 
+	echo "a is equal to b"
+else
+	echo "a is not equal to b"
+fi
+也可以写在一行中：if test $[2*3] -eq $[1+5]; then echo 'equal'; fi;
+2.case...esac语句
+case 值 in 
+模式1）
+	command1
+	...
+	;;
+模式2）
+	command1
+	...
+	;;
+...
+esac
+
+
+shell的循环语句
+1.for 
+for 变量 in 列表
+do
+	command1
+	...
+done
+I.E.
+for loop in 1 2 3 4 5
+do 
+	echo "The value is : $loop"
+done
+I.E.2 显示主目录下以.bash开头的文件
+#!/bin/bash
+for FILE in $HOME/ .bash*
+do 
+	echo $FILE
+done
+2.while
+while command
+do
+	statements to be executed if command is true
+done
+I.E.
+counter=0
+while [ $counter -lt 5 ]
+do
+	counter='expr $counter+1'
+	echo $counter
+done
+3.until
+until循环执行一系列命令直至条件为true
+until command 
+do 
+	statements to be executed until command is true
+done
+
+########################################################
+
+shell函数
+必须先定义后使用:
+定义方式如下：
+function_name (){
+	list of commands
+	[ return value ]
+} 
+也可以加上function关键字
+ps:1.调用函数只需要给出函数名不用括号 2.函数返回值，可以显式的增加return，如果不加，会将最后一条命令运行结果作为返回值 3.shell函数返回值只能是整数，一般用来表示函数执行成功与否，0表示成功
+4.函数的参数可以通过 $n 得到
+I.E.
+funWithParam(){
+    echo "The value of the first parameter is $1 !"
+    echo "The value of the second parameter is $2 !"
+    echo "The value of the tenth parameter is ${10} !"
+    echo "The value of the eleventh parameter is ${11} !"
+    echo "The amount of the parameters is $# !"  # 参数个数
+    echo "The string of the parameters is $* !"  # 传递给函数的所有参数
+}
+funWithParam 1 2 3 4 5 6 7 8 9 34 73
+5.类似删除变量 删除函数为：unset .f function_name
+
+#########################################################
+
+shell也可以包含外部脚本，将外部脚本的内容合并到当前脚本：
+使用：
+. filename
+或
+source filename
+#########################################################
+examples:
+1.hello,world
+#!/bin/sh
+str = "hello,world"
+num = 2
+echo "str is : ${str} num is : ${num}nd"
+结果
+str is : hello world num is : 2nd
+
+2.if语句
+1）写一个脚本判断当前所用的shell
+#！/bin/sh
+# 注意if的空格以及[]里面的空格
+if [ "$SHELL" = "/bin/bash" ];then
+echo "your login shell is the bash.\n"
+echo "SHELL is : $SHELL"
+else 
+echo "your login shell is not bash but $SHELL"
+fi
+
+# [ -f "somefile" ] : 判断是否是一个文件
+# [ -x "/bin/ls" ] : 判断/bin/ls是否存在并有可执行权限
+# { -n "$var" } : 判断$var变量是否有值
+# [ "&a" = "$b" ] : 判断$a和$b是否相等
+[ -f "/etc/shadow" ] && echo "This computer users shadow passwords."
+# 是注释的意思，相关部分已经在里面详细给大家注释解释了，注释if语句的格式：
+
+if[];then
+
+elif[];then
+
+else
+
+fi
+
+3.练习:写一个脚本使其从一个文件里面读入有echo的语句，并把其写在本文件末尾
+
+#!/bin/sh
+#-r代表此文件是否可读，具体见man test
+mailfolder=/home/handsome/work/linux_learn/shell_learn/readme.txt
+#[ -r "$mailfolder" ] || { echo "Can not read $mailfolder" ; exit 1;}
+#echo "$mailfolder has mail from : "
+#grep "^echo " $mailfolder
+
+if [ -r "$mailfolder" ];then
+    echo "$mailfolder has massage from : "
+    echo | grep '^echo ' $mailfolder >> readme2.txt
+    chmod +r readme2.txt
+    cat readme2.txt >> $mailfolder
+    rm -f readme2.txt
+else
+    echo "Can not read $mailfolder"
+    touch $mailfolder
+    chmod +rw $mailfolder
+    echo "echo 人生自古谁无死，六区蛋清找旱情! " >> $mailfolder
+fi

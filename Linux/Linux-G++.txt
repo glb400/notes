@@ -1,0 +1,11 @@
+Linux G++
+
+假设文件内容入下：
+main.cpp 
+a.cpp
+a.hpp
+subFolder
+	|-sub.hpp
+	|-subdll.so //dll
+
+那么编译过程为 g++ -o m main.cpp a.cpp -I./subFolder/ -L./subFolder -subdll

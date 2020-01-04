@@ -1,0 +1,21 @@
+﻿# shell-example1
+
+
+# 在shell中：'>'为创建：echo "hello shell" > out.txt '>>'为追加：echo "hello shell" >> out.txt
+# 当out.txt 文本不存在时,'>'与'>>'都会默认创建out.txt文本，并将hello shell 字符串保存到out.txt中
+# 当out.txt文本存在时，'>'会将out.txt文本中的内容清空，并将hello shell 字符串存入;而'>>'会将 hello shell追加保存到out.txt的末尾
+
+touch experiments/results.json
+echo "[" > experiments/results.json
+for depart in {1..9}
+do 
+	for arrival in {1..9}
+	do
+		for i in {1..100}
+		do
+			./bin/simulation 10 1000 0.$depart 0.$arrival $i 1>/dev/null 2>>experiments/results.json 
+			#1，2是管道描述符，1是stdout，因为我们丢弃stdout(输出结果)，所以我们把它输入空文件(/dev/null)
+		done
+	done
+done
+echo "]" >> experiments/results.json
